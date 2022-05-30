@@ -20,25 +20,41 @@ void thread_client2client(struct thread_data td)
     char msg_recv[1000];
     int dest;
     char msg[1000];
+    char msg2[1000];
     strcpy(msg_recv,"");
-    while(strcmp(msg_recv,"bye"))
+    int flag = strcmp(msg_recv,"bye");
+    if (!flag) {printf("ID %d has left the chat\n",td.id_+100);}
+    while(flag)
     {
         int msg_len = receive_from_socket(td.s, msg_recv, 1000); // receive message from client
         if(msg_len==0) return;
         // extract id
         dest = str2num(msg_recv)- 100;
         // extract msg
-        int l = strlen(msg_recv);
-        int i = 0;
-        while(msg_recv[l-i-1]!=' ')
+        int flag = 0;
+        int i=0;
+        int j= 0;
+        while(msg_recv[i])
         {
-            msg[i] = msg_recv[l-i-1];
+            if (msg_recv[i]==' ')
+            {
+                flag=1;
+            }
+            if (flag)
+            {
+                msg[j] = msg_recv[i];
+                j++;
+            }
             i++;
         }
         msg[i] = '\0';
-        bool success = send_to_socket(client_sockets[dest], strrev(msg)); // sent message to client
+        itoa(td.id_+100,msg2,10);
+        strcat(msg2, ">");
+        strcat(msg2, msg);
+        bool success = send_to_socket(client_sockets[dest], msg2); // sent message to client
         if(!success) printf("Send failed.\n\n");
     }
+
 }
 
 
@@ -60,11 +76,11 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        printf("Waiting for  connections...");
+        printf("\bWaiting for  connections...\n");
 
         client_sockets[i] = accept_connection(server_socket);
 
-        printf("Connection %d accepted", i);
+        printf("\nConnection accepted for ID %d\n", i+100);
         char first_msg[100] = "Your ID is ";
         char id[5];
         itoa(i+100,id,10);
