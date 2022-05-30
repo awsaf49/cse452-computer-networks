@@ -6,7 +6,7 @@ void thread_to_send(struct thread_data td)
 {
     SOCKET s = td.s;
     char msg_send[1000];
-    while(strcmp(msg_send,"bye"))
+    while(strcmp(msg_send,"Bye"))
     {
         gets(msg_send);
         bool success = send_to_socket(s, msg_send);
@@ -23,7 +23,7 @@ void thread_to_recv(struct thread_data td)
     SOCKET s = td.s;
     char msg_recv[1000];
     strcpy(msg_recv,"");
-    while(strcmp(msg_recv,"bye"))
+    while(strcmp(msg_recv,"Bye"))
     {
         int msg_len = receive_from_socket(s, msg_recv, 1000);
         if( msg_len < 0)

@@ -22,7 +22,7 @@ void thread_client2client(struct thread_data td)
     char msg[1000];
     char msg2[1000];
     strcpy(msg_recv,"");
-    while(strcmp(msg_recv,"bye"))
+    while(strcmp(msg_recv,"Bye"))
     {
         int msg_len = receive_from_socket(td.s, msg_recv, 1000); // receive message from client
         if(msg_len==0) return;
