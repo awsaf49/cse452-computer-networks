@@ -46,7 +46,7 @@ void thread_client2client(struct thread_data td)
             i++;
         }
         msg[j] = '\0';
-        itoa(td.id_+100,msg2,10);
+        itoa(td.i+100,msg2,10);
         strcat(msg2, ">");
         strcat(msg2, msg);
         bool success = send_to_socket(client_sockets[dest], msg2); // sent message to client
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
         struct thread_data td;
         td.s = client_sockets[i]; // own socket
-        td.id_ = i; // own id
+        td.i = i; // own id
         create_socket_thread(thread_client2client, td); // create new thread
         i++;
     }

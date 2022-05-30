@@ -125,7 +125,7 @@ int receive_from_socket(SOCKET s, char * msg, int max_len)
 struct thread_data
 {
     SOCKET s;
-    int id_;
+    int i;
 //you can define additional parameters if needed to send to threads
 
 };
