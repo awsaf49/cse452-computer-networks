@@ -22,9 +22,7 @@ void thread_client2client(struct thread_data td)
     char msg[1000];
     char msg2[1000];
     strcpy(msg_recv,"");
-    int flag = strcmp(msg_recv,"bye");
-    if (!flag) {printf("ID %d has left the chat\n",td.id_+100);}
-    while(flag)
+    while(strcmp(msg_recv,"bye"))
     {
         int msg_len = receive_from_socket(td.s, msg_recv, 1000); // receive message from client
         if(msg_len==0) return;
@@ -47,7 +45,7 @@ void thread_client2client(struct thread_data td)
             }
             i++;
         }
-        msg[i] = '\0';
+        msg[j] = '\0';
         itoa(td.id_+100,msg2,10);
         strcat(msg2, ">");
         strcat(msg2, msg);
