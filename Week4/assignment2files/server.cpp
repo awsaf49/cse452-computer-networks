@@ -61,11 +61,11 @@ void thread_to_recv(struct thread_data td)
         else if (strcmp(path,"/api")==0 && strlen(proto)!=0)
         {
             char * p = req_body;
-            p = get_token(p, "=", id_part);
-            p = get_token(p, "=", id_part);
-            int id = atoi(id_part);
-            int record_found = get_record(id,name,email);
-            if (record_found)
+            p = get_token(p, "=", str_id);
+            p = get_token(p, "=", str_id);
+            int id = atoi(str_id);
+            int status = get_record(id,name,email);
+            if (status)
             {
                 sprintf(file_contents, "id=%d&name=%s&email=%s",id,name,email);
                 int con_len = strlen(file_contents);
@@ -163,6 +163,27 @@ void thread_to_recv(struct thread_data td)
             if(status)
             {
                 sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+            }
+            else
+            {
+                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+            }
+        }
+    }
+
+    else if(strcmp(type, "DELETE")==0)
+    {
+        if(strcmp(path,"/api")==0)
+        {
+            char * p = req_body;
+            p = get_token(p, "=", str_id);
+            p = get_token(p, "=", str_id);
+            int id = atoi(str_id);
+            int status = delete_record(id);
+            if (status)
+            {
+                sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+
             }
             else
             {
