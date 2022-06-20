@@ -1,6 +1,8 @@
 #include "network_helper.cpp"
 #include "http_helper.cpp"
 #include "api_helper.cpp"
+#include <stdlib.h>
+#include <string.h>
 
 SOCKET client_sockets[100];
 
@@ -30,7 +32,7 @@ void thread_to_recv(struct thread_data td)
     get_http_header_body(msg_recv, req_header, req_body);
 
     char * request = req_header;
-    char type[100], path[100], proto[100], name_part[100], email_part[100],  name[50], email[50];
+    char type[100], path[100], proto[100], name_part[100], email_part[100],  name[50], email[50], id_part[10];
 
     request = get_token(request, " ", type);
 
@@ -56,18 +58,38 @@ void thread_to_recv(struct thread_data td)
             }
 
         }
+        else if (strcmp(path,"/api")==0 && strlen(proto)!=0)
+        {
+            char * p = req_body;
+            p = get_token(p, "=", id_part);
+            p = get_token(p, "=", id_part);
+            int id = atoi(id_part);
+            int record_found = get_record(id,name,email);
+            if (record_found)
+            {
+                sprintf(file_contents, "id=%d&name=%s&email=%s",id,name,email);
+                int con_len = strlen(file_contents);
+                sprintf(response, "HTTP/1.1 200 OK\nContent-length:%d\n\n%s",con_len,file_contents);
+
+            }
+            else
+            {
+                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+            }
+        }
         else
         {
             //prepare a response
-            printf(">> check: path=%s | proto=%s\n",path,proto);
+//            printf(">> check: path=%s | proto=%s\n",path,proto);
             if(strlen(path)==0 || strlen(proto)==0) //GET
             {
                 sprintf(response, "HTTP/1.1 400 BAD REQUEST\nContent-length:0");
             }
             else
             {
-
-                int found = read_html_file(path, file_contents);
+                char *path2 = path+1;
+//                printf(">> Path: %s\n",path2);
+                int found = read_html_file(path2, file_contents);
                 if(found)
                 {
                     int con_len = strlen(file_contents);
@@ -90,18 +112,25 @@ void thread_to_recv(struct thread_data td)
 
             p = name_part;
             p = get_token(p, "=", name);
-            p = get_token(p, "=", name); //second tkane
+            p = get_token(p, "=", name); //second token
 
             p = email_part;
             p = get_token(p, "=", email);
             p = get_token(p, "=", email); //second token
 
             printf("Name = %s and email = %s\n", name, email);
-
-            int status = create_record(name, email);
-            if(status)
+            if (strlen(name)==0 || strlen(email)==0)
             {
-                sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+//                printf(">> malformed: name or email");
+                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+            }
+            else
+            {
+                int status = create_record(name, email);
+                if(status)
+                {
+                    sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+                }
             }
 
         }
