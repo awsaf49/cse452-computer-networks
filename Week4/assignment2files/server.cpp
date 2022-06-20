@@ -36,9 +36,11 @@ void thread_to_recv(struct thread_data td)
 
     request = get_token(request, " ", path);
 
+    request = get_token(request, " ", proto);
+
     if(strcmp(type,"GET")==0)
     {
-        if(strcmp(path,"/")==0)
+        if(strcmp(path,"/")==0 && strlen(proto)!=0)
         {
             //prepare a response
 //            printf(">> check fail: %s\n",path);
@@ -57,23 +59,26 @@ void thread_to_recv(struct thread_data td)
         else
         {
             //prepare a response
-//            printf(">> check: %s\n",path);
-            int found = read_html_file(path, file_contents);
-            if(found)
+            printf(">> check: path=%s | proto=%s\n",path,proto);
+            if(strlen(path)==0 || strlen(proto)==0) //GET
             {
-                int con_len = strlen(file_contents);
-                sprintf(response, "HTTP/1.1 200 OK\nContent-length:%d\n\n%s",con_len,file_contents);
+                sprintf(response, "HTTP/1.1 400 BAD REQUEST\nContent-length:0");
             }
             else
             {
-                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+
+                int found = read_html_file(path, file_contents);
+                if(found)
+                {
+                    int con_len = strlen(file_contents);
+                    sprintf(response, "HTTP/1.1 200 OK\nContent-length:%d\n\n%s",con_len,file_contents);
+                }
+                else
+                {
+                    sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+                }
             }
         }
-//        else
-//        {
-//            sprintf(response, "HTTP/1.1 403 BAD REQUEST\nContent-length:0");
-//
-//        }
     }
     else if(strcmp(type, "POST")==0)
     {
@@ -110,7 +115,7 @@ void thread_to_recv(struct thread_data td)
 
 
 
-int main(int argc , char *argv[])
+int main(int argc, char *argv[])
 {
     bool success = init_networking();
     if(!success) return 0;
@@ -146,14 +151,14 @@ int main(int argc , char *argv[])
     }
 
 
-	//go to sleep
+    //go to sleep
     sleep_for_ever();
 
     //finally process cleanup job
     closesocket(server_socket);
-   //closesocket(s);
+    //closesocket(s);
     WSACleanup();
-	return 0;
+    return 0;
 }
 
 
