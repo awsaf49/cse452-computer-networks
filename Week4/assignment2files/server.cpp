@@ -58,16 +58,24 @@ void thread_to_recv(struct thread_data td)
             }
 
         }
-        else if (strcmp(path,"/api")==0 && strlen(proto)!=0){
+        else if (strcmp(path,"/api")==0 && strlen(proto)!=0)
+        {
             char * p = req_body;
             p = get_token(p, "=", id_part);
             p = get_token(p, "=", id_part);
             int id = atoi(id_part);
-            get_record(id,name,email);
-            sprintf(file_contents, "id=%d&name=%s&email=%s",id,name,email);
-            int con_len = strlen(file_contents);
-            sprintf(response, "HTTP/1.1 200 OK\nContent-length:%d\n\n%s",con_len,file_contents);
+            int record_found = get_record(id,name,email);
+            if (record_found)
+            {
+                sprintf(file_contents, "id=%d&name=%s&email=%s",id,name,email);
+                int con_len = strlen(file_contents);
+                sprintf(response, "HTTP/1.1 200 OK\nContent-length:%d\n\n%s",con_len,file_contents);
 
+            }
+            else
+            {
+                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+            }
         }
         else
         {
@@ -111,11 +119,18 @@ void thread_to_recv(struct thread_data td)
             p = get_token(p, "=", email); //second token
 
             printf("Name = %s and email = %s\n", name, email);
-
-            int status = create_record(name, email);
-            if(status)
+            if (strlen(name)==0 || strlen(email)==0)
             {
-                sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+//                printf(">> malformed: name or email");
+                sprintf(response, "HTTP/1.1 404 NOT FOUND\nContent-length:0");
+            }
+            else
+            {
+                int status = create_record(name, email);
+                if(status)
+                {
+                    sprintf(response, "HTTP/1.1 204 NO CONTENT\nContent-length:0");
+                }
             }
 
         }
