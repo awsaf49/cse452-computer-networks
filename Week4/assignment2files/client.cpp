@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
     td.s = client_socket;
 
     create_socket_thread(thread_to_send, td);
-    printf(">> Socket Closed\n");
     //go to sleep
     sleep_for_ever();
 
