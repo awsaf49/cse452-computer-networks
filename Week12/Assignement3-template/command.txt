@@ -1,0 +1,4 @@
+Go to settings->compiler>Linker settings and add the following line
+
+
+-lws2_32
