@@ -39,7 +39,7 @@
 # Debug files
 *.dSYM/
 *.su
-*.idb
+*.idb 
 *.pdb
 
 # Kernel Module Compile Results
@@ -55,10 +55,4 @@ dkms.conf
 
 *.mp4
 
-Week12/CSE452_ARP.pdf
 
-*.pkt
-
-*.pdf
-
-*.xlsx
