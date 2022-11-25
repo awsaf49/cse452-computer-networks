@@ -86,13 +86,14 @@ void thread_to_recv(thread_data data)
             // update mac table
             char mac_source[7];
             strcpy(mac_source, frame->mac_source);
-            printf("Source MAC of the frame: %s \n", mac_source);
+            printf("Source MAC of the frame: ");
+            print_mac(mac_source);
+            printf("\n");
             SOCKET socket_src = get_receivers_socket(table, table_size, frame->mac_source);
             if (socket_src==0)
             {
                 table[table_size].port = table_size;
                 table[table_size].s = data.s;
-                // strcpy(table[table_size].ip, frame->payload.target_protocol_address);
                 strcpy(table[table_size].mac, frame->mac_source);
                 table_size++;
             }
@@ -100,7 +101,9 @@ void thread_to_recv(thread_data data)
             // check if dest mac is broadcast
             char mac_destination[7];
             strcpy(mac_destination, frame->mac_destination);
-            printf("Destination MAC of the frame: %s \n", mac_destination);
+            printf("Destination MAC of the frame: ");
+            print_mac(mac_destination);
+            printf("\n");
             int i;
             int broadcast=1;
             for (i = 0; i < 6; i++)
@@ -120,7 +123,7 @@ void thread_to_recv(thread_data data)
                 int i;
                 for (i = 0; i < table_size; i++)
                 {
-                    if (strcmp(table[i].mac, frame->mac_source)) // broadcast other than source
+                    if (strcmp(table[i].mac, mac_source)!=0) // broadcast other than source
                     {
                         send_ethernet_frame(table[i].s, frame);
                     }
